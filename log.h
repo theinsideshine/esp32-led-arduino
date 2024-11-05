@@ -1,14 +1,17 @@
  /**
    File: Clase para loguear mensajes formateados en arduino.
  
-   - Compiler:           Arduino IDE 2.3.3
-   - Supported devices:  ESP32 DEV Module
-
-   Author               pablo.tavolaro@docentes.udemm.edu.ar
-   Date:  07-10-2024
-
-        Universidad de la Marina Mercante.
-*/
+  * - Compiler:           Arduino IDE 2.3.3
+ * - Supported devices:  ESP32 DEV Module
+ *
+ * -author               educacion.ta@gmail.com
+ *                       
+ *                       
+* Date:  07-10-2024
+ *
+ *      The inside shine.
+ *
+  */
  
 #ifndef LOG_H
 #define LOG_H

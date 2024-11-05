@@ -1,3 +1,21 @@
+/**
+   File: Clase para el manejo de la eeprom y la comunicacion serial y por webservice
+ 
+  * - Compiler:           Arduino IDE 2.3.3
+ * - Supported devices:  ESP32 DEV Module
+ *
+ * -author               educacion.ta@gmail.com
+ *                       
+ *                       
+* Date:  07-10-2024
+ *
+ *      The inside shine.
+ *
+  */
+
+
+
+
 #include "cfg_web.h"
 #include "log.h"
 
@@ -37,6 +55,7 @@ void CConfig::init() {
         set_dead_zone_min(DEAD_ZONE_MIN_DEFAULT);
         set_dead_zone_max(DEAD_ZONE_MAX_DEFAULT);
         set_speed_dead_zone(SPEED_DEAD_ZONE_DEFAULT);
+        set_led_blink_time(LED_BLINK_TIME_DEFAULT);
         
         set_log_level(LOG_MSG); // Setea log por defecto
         set_st_test(ST_TEST_DEFAULT);
@@ -53,6 +72,7 @@ void CConfig::init() {
         EEPROM.get(EEPROM_ADDRESS_DEAD_ZONE_MIN, dead_zone_min);
         EEPROM.get(EEPROM_ADDRESS_DEAD_ZONE_MAX, dead_zone_max);
         EEPROM.get(EEPROM_ADDRESS_SPEED_DEAD_ZONE, speed_dead_zone);
+        EEPROM.get(EEPROM_ADDRESS_LED_BLINK_TIME, led_blink_time);
 
         EEPROM.get(EEPROM_ADDRESS_LOG_LEVEL, log_level);
 
@@ -67,6 +87,8 @@ void CConfig::init() {
         Serial.println(dead_zone_max);
         Serial.print("Speed dead zone: ");
         Serial.println(speed_dead_zone);
+        Serial.print("Led blink time: ");
+        Serial.println(led_blink_time);
         Serial.print("Log level: ");
         Serial.println(log_level);
 
@@ -123,6 +145,11 @@ void CConfig::handleHttpRequest(WebServer &server) {
                     set_speed_dead_zone( doc["speed_dead_zone"] );
                     known_key = true;
                 }
+
+                if ( doc.containsKey("led_blink_time") ) {
+                    set_led_blink_time( doc["led_blink_time"] );
+                    known_key = true;
+                }
            
             
                 if ( doc.containsKey("log_level") ) {
@@ -156,6 +183,8 @@ void CConfig::handleHttpRequest(WebServer &server) {
                     send_dead_zone_max( doc );
                 }else if( key == "speed_dead_zone" ) {
                     send_speed_dead_zone( doc );
+                }else if( key == "led_blink_time" ) {
+                    send_led_blink_time( doc );
                 }else if( key == "st_mode" ) {
                     send_st_mode( doc );
                 }else if( key == "log_level" ) {
@@ -258,6 +287,18 @@ void CConfig::set_speed_dead_zone( float val )
     EEPROM.commit();  // Asegura que el valor se escriba
 }
 
+uint32_t CConfig::get_led_blink_time( void )
+{
+    return led_blink_time;
+}
+
+void CConfig::set_led_blink_time( uint32_t val )
+{
+    led_blink_time = val;
+    EEPROM.put( EEPROM_ADDRESS_LED_BLINK_TIME, val );
+    EEPROM.commit();  // Asegura que el valor se escriba
+}
+
 uint32_t CConfig::get_log_level( void )
 {
     return log_level;
@@ -297,62 +338,77 @@ void CConfig::set_st_mode( uint32_t mode )
     EEPROM.put( EEPROM_ADDRESS_ST_MODE, st_mode );
     EEPROM.commit();  // Asegura que el valor se escriba
 }
-// Por medio de el endpoint GET {{urlLocalEsp}}/obtenerParametros se pueden ver  los parametros 
-// curl --location '192.168.0.53/obtenerParametros'
-
-// Por medio de el endpoint PUT {{urlLocalEsp}}/parametros se pueden modificar los parametros o mandar comandos
-// curl --location --request PUT '192.168.0.53/parametros' \--header 'Content-Type: application/json' \--data '{    "log_level": "1"} '
-// {info:'all-params'}        Envia todos los parametros en formato json.
-// {info:'all-calibration'}   Envia todos los parametros en formato json de calibracion de la flexion y el nivel de logeo.
-// {info:'version'}           Envia  la version del firmware.
-// {info:'status'}            Devuelve el estatus del ensayo.
-// {info:'point_position'}    Devuelve point_position.
-// {info:'point_speed'}       Devuelve point_speed.
-// {info:'dead_zone_min'}     Devuelve dead_zone_min.
-// {info:'dead_zone_max'}     Devuelve dead_zone_max.
-// {info:'speed_dead_zone'}   Devuelve dead_zone_max.
-// {info:'st_mode'}           Devuelve el modo del ensayo.
-// {info:'log_level'}         Nivel de logeo por puerto serie.
-
-
-// {log_level:'0'}       log_level:0=desactivado,
-// {log_level:'1'}                 1=mensajes.
-// {log_level:'2'}                 2=info control estandar.
-// {log_level:'3'}                 3=info control arduino plotter.
-
-// {cmd:'start'}       Comienza el ensayo.
-
-
-// {point_position:'100'}         point_position      Posicion del punto.
-// {point_speed:'200'}            point_speed         Velocidad del punto.
-// {dead_zone_min:'1'}            dead_zone_min       Comienzo de la zona muerta.
-// {dead_zone_max:'2'}            dead_zone_max       Fin de la zona muerta.
-// {speed_dead_zone:'150.0'}      speed_dead_zone     Velocidad en la zona muerta.
-// {st_test:'1'}         st_test       0 ensayo desactivado. 
-//                       st_test       1 ensayo activado. 
-// {st_mode:'0'}         st_mode       ST_MODE_TEST                    0  ensayo activado.
-//                                     ST_MODE_HOME_M2                 1 Va al home del motor 2.
-//                                     ST_MODE_CELL                    2 Lee las celdas de carga.
-                        
-
-
-
 /*
- *  Envia todos los parametros del experimento en formato json.
- */
 
-// {point_position:'100'}         point_position      Posicion del punto.
-// {point_speed:'200'}            point_speed         Velocidad del punto.
-// {dead_zone_min:'1'}            dead_zone_min       Comienzo de la zona muerta.
-// {dead_zone_max:'2'}            dead_zone_max       Fin de la zona muerta.
-// {speed_dead_zone:'150.0'}      speed_dead_zone     Velocidad en la zona muerta.
+API Endpoints
+1. Obtener Parámetros
+Puedes consultar los parámetros configurados en el dispositivo mediante el endpoint GET:
+
+Endpoint: GET {{urlLocalEsp}}/obtenerParametros
+
+curl --location 'http://192.168.0.53/obtenerParametros'
+
+
+2. Modificar Parámetros y Enviar Comandos
+Para modificar parámetros o enviar comandos, utiliza el endpoint PUT:
+
+Endpoint: PUT {{urlLocalEsp}}/parametros
+
+curl --location --request PUT 'http://192.168.0.53/parametros' \
+--header 'Content-Type: application/json' \
+--data '{ "log_level": "1" }'
+
+Parámetros y Comandos Disponibles
+Estos son los parámetros y comandos que puedes enviar mediante JSON en el cuerpo de la solicitud:
+
+General Information:
+
+{ "info": "all-params" } – Envía todos los parámetros en formato JSON.
+{ "info": "all-calibration" } – Envía todos los parámetros de calibración.
+{ "info": "version" } – Envía la versión del firmware.
+{ "info": "status" } – Devuelve el estado del ensayo.
+{ "info": "point_position" } – Devuelve la posición del punto.
+{ "info": "point_speed" } – Devuelve la velocidad del punto.
+{ "info": "dead_zone_min" } – Devuelve el inicio de la zona muerta.
+{ "info": "dead_zone_max" } – Devuelve el fin de la zona muerta.
+{ "info": "speed_dead_zone" } – Devuelve la velocidad en la zona muerta.
+{ "info": "led_blink_time" } – Devuelve el tiempo de parpadeo del LED en ms.
+{ "info": "st_mode" } – Devuelve el modo del ensayo.
+{ "info": "log_level" } – Devuelve el nivel de log por puerto serie.
+Log Level:
+
+{ "log_level": "0" } – Desactiva el log.
+{ "log_level": "1" } – Log básico de mensajes.
+{ "log_level": "2" } – Log con control estándar.
+{ "log_level": "3" } – Log en formato compatible con Arduino plotter.
+Control Commands:
+
+{ "cmd": "start" } – Inicia el ensayo.
+Configuración de Parámetros:
+
+{ "point_position": "100" } – Establece la posición del punto.
+{ "point_speed": "200" } – Establece la velocidad del punto.
+{ "dead_zone_min": "1" } – Configura el inicio de la zona muerta.
+{ "dead_zone_max": "2" } – Configura el final de la zona muerta.
+{ "speed_dead_zone": "150.0" } – Configura la velocidad en la zona muerta.
+{ "led_blink_time": "1000" } – Tiempo en ms para el parpadeo del LED.
+{ "st_test": "1" } – Activa el ensayo (0 para desactivado, 1 para activado).
+{ "st_mode": "0" } – Configura el modo del ensayo:
+0 - ST_MODE_TEST: Ensayo activado.
+1 - ST_MODE_HOME_M2: Home del motor 2.
+2 - ST_MODE_CELL: Lee las celdas de carga.
+
+*/
+
+
 void CConfig::send_all_params( JsonDocument& doc )
 {
     doc["point_position"] = get_point_position();
     doc["point_speed"]    = get_point_speed();
     doc["dead_zone_min"]  = get_dead_zone_min();
     doc["dead_zone_max"]  = get_dead_zone_max();
-    doc["speed_dead_zone"]= get_speed_dead_zone();             
+    doc["speed_dead_zone"]= get_speed_dead_zone();   
+    doc["led_blink_time"] = get_led_blink_time();           
     doc["st_test"]        = get_st_test();    
    
     serializeJsonPretty( doc, Serial );
@@ -418,10 +474,19 @@ void CConfig::send_dead_zone_max( JsonDocument& doc )
     serializeJsonPretty( doc, Serial );
 }
 
-// Envia dead_zone_max
+// Envia speed_dead_zone
 void CConfig::send_speed_dead_zone( JsonDocument& doc )
 {
     doc["speed_dead_zone"] =  get_speed_dead_zone();
+
+    serializeJsonPretty( doc, Serial );
+}
+
+
+// Envia led_blink_time
+void CConfig::send_led_blink_time( JsonDocument& doc )
+{
+    doc["led_blink_time"] =  get_led_blink_time();
 
     serializeJsonPretty( doc, Serial );
 }

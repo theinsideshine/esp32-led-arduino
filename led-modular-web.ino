@@ -4,14 +4,61 @@
           uso de codigo de terceros, C++
   
 
-   - Compiler:           Arduino IDE 2.3.3
-   - Supported devices:  ESP32 DEV Module
+ * - Compiler:           Arduino IDE 2.3.3
+ * - Supported devices:  ESP32 DEV Module
+ *
+ * -author               educacion.ta@gmail.com
+ *                       
+ *                       
+* Date:  07-10-2024
+ *
+ *      The inside shine.
+ *
+ */
 
-   Author               pablo.tavolaro@docentes.udemm.edu.ar
-   Date:  07-10-2024
+/*
+Proyecto de Control de Parpadeo de LED en ESP32 con Interfaz Web
+Descripción del Proyecto
+Este proyecto presenta una arquitectura modular para el ESP32 utilizando Arduino,
+ diseñada para soportar sistemas de control complejos y no bloqueantes.
+  El sistema proporciona control mediante una interfaz web, persistencia de datos y salida serial 
+  compatible con formatos JSON, texto y gráfico. 
+  Implementa una estructura de máquina de estados adaptable a diversas aplicaciones, 
+  como el control de una puerta motorizada con seguimiento preciso de posición. 
+  En el ejemplo incluido, un LED parpadea utilizando temporizadores no bloqueantes ajustables.
 
-        Universidad de la Marina Mercante.
+Características
+Soporte para Métodos No Bloqueantes: Arquitectura diseñada para manejar controles no bloqueantes, 
+adecuada para gestionar dispositivos complejos como puertas motorizadas. 
+Por ejemplo, el sistema maneja una máquina de estados principal para el estado general de la puerta y una máquina de estados 
+adicional con control PID para una gestión precisa de la posición.
+Control a través de Servicios Web: Aloja un servidor web en el puerto 80, 
+permitiendo el control dinámico de configuraciones y estados mediante solicitudes HTTP GET y PUT.
+Persistencia de Datos: Garantiza que las configuraciones se almacenen y puedan actualizarse dinámicamente, 
+proporcionando funcionalidad constante incluso después de reinicios.
+Salida Serial Flexible: Soporta salidas seriales estructuradas en formato JSON, texto simple y gráfico, 
+útiles para el registro de datos en tiempo real y la depuración.
+Implementación de Máquina de Estados: Una máquina de estados principal supervisa los estados de alto nivel del dispositivo,
+ y permite el uso de procesos de control secundarios, como el control de posición basado en PID para operaciones motorizadas.
+Temporizadores No Bloqueantes: El parpadeo del LED y otras acciones temporizadas se gestionan con temporizadores no bloqueantes, 
+asegurando una operación fluida sin retrasar los procesos principales.
+Estructura del Proyecto
+Descripción de Archivos:
+log.h, cfg_web.h, led.h, precompilation.h, timer.h: Definen el registro de eventos, manejo de configuración, control de LED, opciones de precompilación y utilidades de temporización.
+Archivo principal .ino: Inicializa el Wi-Fi, el servidor web y el hardware, y coordina el flujo de control mediante una máquina de estados.
+Configuración de Ejemplo
+El código proporcionado:
+
+Establece una conexión Wi-Fi e inicializa un servidor web para acceder al control del sistema.
+Utiliza temporizadores no bloqueantes para gestionar la frecuencia de parpadeo del LED.
+Registra actividades y estados en el monitor serial, facilitando la depuración y los ajustes en tiempo real.
+Este marco proporciona una base sólida para agregar dispositivos complejos como puertas motorizadas, habilitando un control preciso a través de múltiples máquinas de estados y admitiendo ajustes basados en PID.
+
+Configuración
+Credenciales Wi-Fi: Reemplace ssid y password con los detalles de su red.
+Estados de la Máquina de Estados: Los estados principales se gestionan mediante ST_LOOP_INIT, ST_LOOP_IDLE, ST_LOOP_LED_ON, y ST_LOOP_LED_OFF.
 */
+
 
 
 #include "log.h"
@@ -20,6 +67,7 @@
 #include "precompilation.h"
 #include <WiFi.h>
 #include <WiFiClient.h>
+#include "timer.h"
 
 
 const char* ssid = "Pablo";
@@ -110,6 +158,7 @@ void setup()
 void loop()
 {
   static uint8_t  st_loop = ST_LOOP_INIT;   
+  static CTimer   Timer_led;
   
 
    
@@ -124,8 +173,17 @@ void loop()
     case ST_LOOP_INIT:
 
        if (Config.get_st_test() == true ) {                   // Espera que se comienzo al ensayo.        
-        st_loop = ST_LOOP_LED_ON; 
+        st_loop = ST_LOOP_IDLE; 
       }
+      
+    break;
+
+     // Espera "eventos" de ejecucion
+    case ST_LOOP_IDLE:    
+          Timer_led.start();
+          Led.on();
+          Log.msg( F("LED ON"));
+          st_loop = ST_LOOP_LED_ON;       
       
     break;
 
@@ -133,21 +191,26 @@ void loop()
     
     case ST_LOOP_LED_ON:
 
-            
-      Log.msg( F("LED ON"));
-       Led.on(); 
-      delay(1000); // Espera para pasar de estado.
-      st_loop = ST_LOOP_LED_OFF;
+      if( Timer_led.expired( Config.get_led_blink_time() ) ) {
+                
+           Log.msg( F("LED OFF"));      
+           Led.off();           
+           Timer_led.start();
+           st_loop = ST_LOOP_LED_OFF; 
+          }
 
     break;
 
    
     case ST_LOOP_LED_OFF:
     
-      Log.msg( F("LED OFF"));      
-      Led.off(); 
-      delay(1000); // Espera para pasar de estado.
-      st_loop = ST_LOOP_LED_ON;
+      if( Timer_led.expired( Config.get_led_blink_time() ) ) {
+                
+          Log.msg( F("LED ON"));      
+           Led.on();           
+           Timer_led.start();
+           st_loop = ST_LOOP_LED_ON;  
+          }
       
     break;       
       
