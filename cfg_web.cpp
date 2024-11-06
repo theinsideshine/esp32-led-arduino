@@ -56,6 +56,7 @@ void CConfig::init() {
         set_dead_zone_max(DEAD_ZONE_MAX_DEFAULT);
         set_speed_dead_zone(SPEED_DEAD_ZONE_DEFAULT);
         set_led_blink_time(LED_BLINK_TIME_DEFAULT);
+        set_led_blink_quantity(LED_BLINK_QUANTITY_DEFAULT);
         
         set_log_level(LOG_MSG); // Setea log por defecto
         set_st_test(ST_TEST_DEFAULT);
@@ -73,6 +74,7 @@ void CConfig::init() {
         EEPROM.get(EEPROM_ADDRESS_DEAD_ZONE_MAX, dead_zone_max);
         EEPROM.get(EEPROM_ADDRESS_SPEED_DEAD_ZONE, speed_dead_zone);
         EEPROM.get(EEPROM_ADDRESS_LED_BLINK_TIME, led_blink_time);
+        EEPROM.get(EEPROM_ADDRESS_LED_BLINK_QUANTITY, led_blink_quantity);
 
         EEPROM.get(EEPROM_ADDRESS_LOG_LEVEL, log_level);
 
@@ -89,6 +91,8 @@ void CConfig::init() {
         Serial.println(speed_dead_zone);
         Serial.print("Led blink time: ");
         Serial.println(led_blink_time);
+        Serial.print("Led blink quantity: ");
+        Serial.println(led_blink_quantity);
         Serial.print("Log level: ");
         Serial.println(log_level);
 
@@ -150,6 +154,11 @@ void CConfig::handleHttpRequest(WebServer &server) {
                     set_led_blink_time( doc["led_blink_time"] );
                     known_key = true;
                 }
+
+                if ( doc.containsKey("led_blink_quantity") ) {
+                    set_led_blink_quantity( doc["led_blink_quantity"] );
+                    known_key = true;
+                }
            
             
                 if ( doc.containsKey("log_level") ) {
@@ -185,6 +194,8 @@ void CConfig::handleHttpRequest(WebServer &server) {
                     send_speed_dead_zone( doc );
                 }else if( key == "led_blink_time" ) {
                     send_led_blink_time( doc );
+                }else if( key == "led_blink_quantity" ) {
+                    send_led_blink_quantity( doc );
                 }else if( key == "st_mode" ) {
                     send_st_mode( doc );
                 }else if( key == "log_level" ) {
@@ -299,6 +310,18 @@ void CConfig::set_led_blink_time( uint32_t val )
     EEPROM.commit();  // Asegura que el valor se escriba
 }
 
+uint32_t CConfig::get_led_blink_quantity( void )
+{
+    return led_blink_quantity;
+}
+
+void CConfig::set_led_blink_quantity( uint32_t val )
+{
+    led_blink_quantity = val;
+    EEPROM.put( EEPROM_ADDRESS_LED_BLINK_QUANTITY, val );
+    EEPROM.commit();  // Asegura que el valor se escriba
+}
+
 uint32_t CConfig::get_log_level( void )
 {
     return log_level;
@@ -373,14 +396,16 @@ General Information:
 { "info": "dead_zone_max" } – Devuelve el fin de la zona muerta.
 { "info": "speed_dead_zone" } – Devuelve la velocidad en la zona muerta.
 { "info": "led_blink_time" } – Devuelve el tiempo de parpadeo del LED en ms.
+{ "info": "led_blink_quantity" } – Devuelve las veces del parpadeo del LED.
 { "info": "st_mode" } – Devuelve el modo del ensayo.
 { "info": "log_level" } – Devuelve el nivel de log por puerto serie.
 Log Level:
 
 { "log_level": "0" } – Desactiva el log.
 { "log_level": "1" } – Log básico de mensajes.
-{ "log_level": "2" } – Log con control estándar.
+{ "log_level": "2" } – Log habilitado en formato json.              
 { "log_level": "3" } – Log en formato compatible con Arduino plotter.
+
 Control Commands:
 
 { "cmd": "start" } – Inicia el ensayo.
@@ -392,24 +417,34 @@ Configuración de Parámetros:
 { "dead_zone_max": "2" } – Configura el final de la zona muerta.
 { "speed_dead_zone": "150.0" } – Configura la velocidad en la zona muerta.
 { "led_blink_time": "1000" } – Tiempo en ms para el parpadeo del LED.
+{ "led_blink_quantity": "5" } – Cantidad de veces del parpadeo del LED.
 { "st_test": "1" } – Activa el ensayo (0 para desactivado, 1 para activado).
 { "st_mode": "0" } – Configura el modo del ensayo:
-0 - ST_MODE_TEST: Ensayo activado.
-1 - ST_MODE_HOME_M2: Home del motor 2.
-2 - ST_MODE_CELL: Lee las celdas de carga.
+0 -   ST_MODE_TEST: Ensayo activado.
+200 - ST_MODE_DEMO: Uso del demo
+
+
+Demo para salida Json
+{ "st_mode": "200" ,
+"log_level": "2" }
+
+Demo para salida Arduino Plotter
+{ "st_mode": "200" ,
+"log_level": "3" }
 
 */
 
 
 void CConfig::send_all_params( JsonDocument& doc )
 {
-    doc["point_position"] = get_point_position();
-    doc["point_speed"]    = get_point_speed();
-    doc["dead_zone_min"]  = get_dead_zone_min();
-    doc["dead_zone_max"]  = get_dead_zone_max();
-    doc["speed_dead_zone"]= get_speed_dead_zone();   
-    doc["led_blink_time"] = get_led_blink_time();           
-    doc["st_test"]        = get_st_test();    
+    doc["point_position"]     = get_point_position();
+    doc["point_speed"]        = get_point_speed();
+    doc["dead_zone_min"]      = get_dead_zone_min();
+    doc["dead_zone_max"]      = get_dead_zone_max();
+    doc["speed_dead_zone"]    = get_speed_dead_zone();   
+    doc["led_blink_time"]     = get_led_blink_time();  
+    doc["led_blink_quantity"] = get_led_blink_quantity();         
+    doc["st_test"]            = get_st_test();    
    
     serializeJsonPretty( doc, Serial );
 }
@@ -487,6 +522,14 @@ void CConfig::send_speed_dead_zone( JsonDocument& doc )
 void CConfig::send_led_blink_time( JsonDocument& doc )
 {
     doc["led_blink_time"] =  get_led_blink_time();
+
+    serializeJsonPretty( doc, Serial );
+}
+
+// Envia led_blink_time
+void CConfig::send_led_blink_quantity( JsonDocument& doc )
+{
+    doc["led_blink_quantity"] =  get_led_blink_quantity();
 
     serializeJsonPretty( doc, Serial );
 }

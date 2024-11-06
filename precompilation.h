@@ -18,7 +18,7 @@
 
 #include "Arduino.h"
 
-#define FIRMWARE_VERSION                "led-modular-WEB-V1.11"   //add led_blink_time in eeprom 
+#define FIRMWARE_VERSION                "led-modular-WEB-V1.18"   //add st_mode_demo1
 #define LED_PRESENT                        1
 //#define ST_DEBUG                         1
 

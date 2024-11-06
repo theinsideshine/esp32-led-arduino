@@ -27,7 +27,7 @@
 
                                                   
 //#define EEPROM_ADDRESS_CONFIG         4       // Direccion en la epprom donde se almacena la configuracion.
-#define MAGIC_NUMBER                    31    // Numero magico para detectar memoria sin inicializar.
+#define MAGIC_NUMBER                    202    // Numero magico para detectar memoria sin inicializar.
 
 
 #define POINT_POSITION_DEFAULT              10            // Posicion del punto por defecto.
@@ -35,22 +35,24 @@
 #define DEAD_ZONE_MIN_DEFAULT               180           // Valor de comienzo de la zona muerta por defecto.
 #define DEAD_ZONE_MAX_DEFAULT               220           // Valor de final de la zona muerta por defecto. 
 #define SPEED_DEAD_ZONE_DEFAULT             150.0         // Valor de la velocidad dentro de la zona muerta, por defecto.
-#define LED_BLINK_TIME_DEFAULT              1000          // Valor de blinkeo del led
+#define LED_BLINK_TIME_DEFAULT              1010          // Tiempo en ms del blinkeo del led
+#define LED_BLINK_QUANTITY_DEFAULT          3             // Numero de blinkeo del led
 #define ST_TEST_DEFAULT                     0             //  Estado del test pòr defecto.
 #define ST_MODE_DEFAULT                     ST_MODE_TEST  //  Modo de operacion del sistema. 
 
 
 // Mapa de direcciones de los campos de configuracion en la EEPROM. en esp el word es 4 bytes
 #define EEPROM_ADDRESS_MAGIC_NUMBER     0
-#define EEPROM_ADDRESS_POINT_POSITION    (EEPROM_ADDRESS_MAGIC_NUMBER + sizeof(uint32_t))    // Cambiado a uint32_t
-#define EEPROM_ADDRESS_POINT_SPEED       (EEPROM_ADDRESS_POINT_POSITION + sizeof(uint32_t))  // Cambiado a uint32_t
-#define EEPROM_ADDRESS_DEAD_ZONE_MIN     (EEPROM_ADDRESS_POINT_SPEED + sizeof(uint32_t))     // Cambiado a uint32_t
-#define EEPROM_ADDRESS_DEAD_ZONE_MAX     (EEPROM_ADDRESS_DEAD_ZONE_MIN + sizeof(uint32_t))   // Cambiado a uint32_t
-#define EEPROM_ADDRESS_SPEED_DEAD_ZONE   (EEPROM_ADDRESS_DEAD_ZONE_MAX + sizeof(float))      // float permanece como está
-#define EEPROM_ADDRESS_LED_BLINK_TIME    (EEPROM_ADDRESS_SPEED_DEAD_ZONE + sizeof(uint32_t)) // Cambiado a uint32_t
-#define EEPROM_ADDRESS_LOG_LEVEL         (EEPROM_ADDRESS_LED_BLINK_TIME + sizeof(uint32_t))  // Cambiado a uint32_t
-#define EEPROM_ADDRESS_ST_TEST           (EEPROM_ADDRESS_LOG_LEVEL + sizeof(uint32_t))       // Cambiado a uint32_t
-#define EEPROM_ADDRESS_ST_MODE           (EEPROM_ADDRESS_ST_TEST + sizeof(uint32_t))         // Cambiado a uint32_t
+#define EEPROM_ADDRESS_POINT_POSITION     (EEPROM_ADDRESS_MAGIC_NUMBER + sizeof(uint32_t))    // Cambiado a uint32_t
+#define EEPROM_ADDRESS_POINT_SPEED        (EEPROM_ADDRESS_POINT_POSITION + sizeof(uint32_t))  // Cambiado a uint32_t
+#define EEPROM_ADDRESS_DEAD_ZONE_MIN      (EEPROM_ADDRESS_POINT_SPEED + sizeof(uint32_t))     // Cambiado a uint32_t
+#define EEPROM_ADDRESS_DEAD_ZONE_MAX      (EEPROM_ADDRESS_DEAD_ZONE_MIN + sizeof(uint32_t))   // Cambiado a uint32_t
+#define EEPROM_ADDRESS_SPEED_DEAD_ZONE    (EEPROM_ADDRESS_DEAD_ZONE_MAX + sizeof(float))      // float permanece como está
+#define EEPROM_ADDRESS_LED_BLINK_TIME     (EEPROM_ADDRESS_SPEED_DEAD_ZONE + sizeof(uint32_t)) // Cambiado a uint32_t
+#define EEPROM_ADDRESS_LED_BLINK_QUANTITY (EEPROM_ADDRESS_LED_BLINK_TIME + sizeof(uint32_t))  // Cambiado a uint32_t
+#define EEPROM_ADDRESS_LOG_LEVEL          (EEPROM_ADDRESS_LED_BLINK_QUANTITY + sizeof(uint32_t))  // Cambiado a uint32_t
+#define EEPROM_ADDRESS_ST_TEST            (EEPROM_ADDRESS_LOG_LEVEL + sizeof(uint32_t))       // Cambiado a uint32_t
+#define EEPROM_ADDRESS_ST_MODE            (EEPROM_ADDRESS_ST_TEST + sizeof(uint32_t))         // Cambiado a uint32_t
 
 /*
  *  Para poder leer los dispositivo y ejecutar accciones se pone un modo de operacion .
@@ -58,6 +60,7 @@
  */
 
 #define ST_MODE_TEST                    0               // Modo de operacion normal, ensayo activado.
+#define ST_MODE_DEMO                    200             //  Demo: Uso del estado modo.
 
 
 class CConfig
@@ -84,6 +87,9 @@ class CConfig
     uint32_t get_led_blink_time( void );
     void set_led_blink_time( uint32_t ); 
 
+    uint32_t get_led_blink_quantity( void );
+    void set_led_blink_quantity( uint32_t ); 
+
     uint32_t get_log_level( void );
     void set_log_level( uint32_t enable );
 
@@ -107,7 +113,8 @@ class CConfig
     uint32_t dead_zone_min;          // Valor de comienzo de la zona muerta.
     uint32_t dead_zone_max;          // Valor de fin de la zona muerta.    
     float    speed_dead_zone;        // Valor de la velocidad dentro de la zona muerta.
-    uint32_t led_blink_time;          // Valor de fin de la zona muerta. 
+    uint32_t led_blink_time;         // Tiempo en ms de blinkeo del led. 
+    uint32_t led_blink_quantity;     // Veces de blinkeo del led. 
   
     
     void send_all_params( JsonDocument& );
@@ -122,11 +129,11 @@ class CConfig
     void send_dead_zone_max( JsonDocument& doc );
     void send_speed_dead_zone( JsonDocument& doc );
     void send_led_blink_time( JsonDocument& doc );
+    void send_led_blink_quantity( JsonDocument& doc );
 
     void send_log_level( JsonDocument& doc );
     void send_st_mode( JsonDocument& doc );
-    void send_step_cal( JsonDocument& doc );
-    void send_step_k( JsonDocument& doc );
+    
     
     
 };

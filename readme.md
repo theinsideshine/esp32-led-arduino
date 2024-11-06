@@ -67,6 +67,7 @@ General Information:
 { "info": "dead_zone_max" } - Returns the end of the dead zone.
 { "info": "speed_dead_zone" } - Returns the speed in the dead zone.
 { "info": "led_blink_time" } - Returns the LED blink time in ms.
+{ "info": "led_blink_quantity" } - Returns the quantity blink times.
 { "info": "st_mode" } - Returns the test mode.
 { "info": "log_level" } - Returns the serial port log level.
 Log Level:
@@ -86,6 +87,7 @@ Parameter Configuration:
 { "dead_zone_max": "2" } - Configures the end of the dead zone.
 { "speed_dead_zone": "150.0" } - Configures the speed in the dead zone.
 { "led_blink_time": "1000" } - LED blink time in ms.
+{ "led_blink_quantity": "5" } – Cantidad de veces del parpadeo del LED.
 { "st_test": "1" } - Enables the test (0 for disabled, 1 for enabled).
 { "st_mode": "0" } - Sets the test mode:
 0 - ST_MODE_TEST: Test enabled.

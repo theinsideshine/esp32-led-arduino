@@ -78,11 +78,12 @@ const char* password = "01410398716";
  * Estado del loop principal de ejecucion
  */
 
-#define ST_LOOP_INIT                    0     // Inicializa el programa (carga la configuracion).
-#define ST_LOOP_IDLE                    1     // Espera la recepcion por comando.
-#define ST_LOOP_LED_ON                  2     // Prende led
-#define ST_LOOP_LED_OFF                 3     // Apaga led
-
+#define ST_LOOP_INIT                    0     // Espera el modo de ejecucion.
+#define ST_LOOP_IDLE                    1     // Empieza el ensayo.
+#define ST_LOOP_LED_ON                  2     // Prende led.
+#define ST_LOOP_LED_OFF                 3     // Apaga led.
+#define ST_LOOP_END                     4     // Termina el ensayo.
+#define ST_MODE_RUN_DEMO1               5     // Demo del uso del estado mode y serialmode.
 
 
 
@@ -95,6 +96,27 @@ Clog    Log;
 CConfig Config;
 CLed     Led;
 WebServer server(80);  // Inicializa el servidor web en el puerto 80
+
+
+static void run_demo_serial_plotter( void);            // Demo del uso del serial_plotter
+
+
+/*
+ * Realiza el final de ensayo
+ * vuelve el st_test = 0 y
+ */
+
+void end_experiment( void ) {
+ 
+  
+  Log.msg( F("Ensayo terminado"));
+  
+  Config.set_st_test( false );
+  Config.send_test_finish(); // Informa por el puerto serie que termino el ensayo 
+}
+
+
+
 /*
  *  Inicializa los dispositivos del ensayo segun opciones de precompilacion.
  */
@@ -159,6 +181,7 @@ void loop()
 {
   static uint8_t  st_loop = ST_LOOP_INIT;   
   static CTimer   Timer_led;
+  static uint32_t led_blink_qty = 2;
   
 
    
@@ -173,13 +196,16 @@ void loop()
     case ST_LOOP_INIT:
 
        if (Config.get_st_test() == true ) {                   // Espera que se comienzo al ensayo.        
-        st_loop = ST_LOOP_IDLE; 
+          st_loop = ST_LOOP_IDLE; 
+       }else if (Config.get_st_mode() == ST_MODE_DEMO ) { // Espera el modo runExample1
+        st_loop =  ST_MODE_RUN_DEMO1 ;
       }
       
     break;
 
      // Espera "eventos" de ejecucion
-    case ST_LOOP_IDLE:    
+    case ST_LOOP_IDLE:   
+          led_blink_qty =  Config.get_led_blink_quantity();     // Carga las veces a blinkear
           Timer_led.start();
           Led.on();
           Log.msg( F("LED ON"));
@@ -189,12 +215,14 @@ void loop()
 
     
     
-    case ST_LOOP_LED_ON:
+    case ST_LOOP_LED_ON:     
+
+     
 
       if( Timer_led.expired( Config.get_led_blink_time() ) ) {
                 
            Log.msg( F("LED OFF"));      
-           Led.off();           
+           Led.off();             
            Timer_led.start();
            st_loop = ST_LOOP_LED_OFF; 
           }
@@ -205,14 +233,34 @@ void loop()
     case ST_LOOP_LED_OFF:
     
       if( Timer_led.expired( Config.get_led_blink_time() ) ) {
-                
-          Log.msg( F("LED ON"));      
-           Led.on();           
-           Timer_led.start();
-           st_loop = ST_LOOP_LED_ON;  
+
+          led_blink_qty--; // Decrementa la cantidad de blinks restantes
+          if (led_blink_qty > 0) {
+            Led.on();
+            Log.msg(F("LED ON"));
+            Timer_led.start();
+            st_loop = ST_LOOP_LED_ON;
+          } else {
+            st_loop = ST_LOOP_END; // Termina el experimento después de 3 blinks
           }
-      
-    break;       
+               
+        }
+
+    break;
+
+    case ST_LOOP_END: 
+
+    // Envia comando de final de experimento  
+       end_experiment();   
+      st_loop = ST_LOOP_INIT;
+    break; 
+
+    case ST_MODE_RUN_DEMO1: 
+
+    // Envia comando de final de experimento  
+       run_demo_serial_plotter();   
+      st_loop = ST_LOOP_INIT;
+    break;      
       
       default:
       st_loop = ST_LOOP_INIT;
@@ -224,3 +272,22 @@ void loop()
 #endif //ST_DEBUG
 
 }
+
+
+
+
+ static void run_demo_serial_plotter( void ){
+  
+    uint16_t raw, filtered,danger_point=2500;
+    uint8_t state=0; 
+    
+    Led.n_blink(5, 500);
+    for (raw=0;raw<5000;raw++){
+        filtered = raw+ 500 ;
+        if (filtered >danger_point ){ 
+          state=1 ;
+        }
+        Log.ctrl (raw, filtered,state,danger_point);
+    }
+     Config.set_st_mode( ST_MODE_TEST );
+ }
