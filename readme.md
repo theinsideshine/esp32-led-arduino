@@ -99,3 +99,10 @@ Compile and Upload: Use Arduino IDE 2.3.3 to compile and upload the code to your
 Serial Logging: Adjust log levels dynamically through serial commands.
 Author: [educacion.ta@gmail.com]
 Date: 07-10-2024
+
+
+Problems in embedded firmware design
+[![Problems in embedded firmware design](images/embebidos.png)](https://youtu.be/KhKX23DdfLY)
+
+Presentation
+![](doc/embebidos.pdf)
