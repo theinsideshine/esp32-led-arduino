@@ -104,5 +104,5 @@ Date: 07-10-2024
 Problems in embedded firmware design
 [![Problems in embedded firmware design](images/embebidos.png)](https://youtu.be/KhKX23DdfLY)
 
-Presentation
-![](doc/embebidos.pdf)
+
+[Presentation](doc/embebidos.pdf)
