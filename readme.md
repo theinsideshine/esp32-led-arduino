@@ -108,5 +108,5 @@ Problems in embedded firmware design
 
 
 ESP32-Test execution-Debug via serial port-Data persistence
-[![Test execution-Debug via serial port-Data persistence(images/esp32-ensayo.png)](https://youtu.be/BXJvdTQ8DYk)
+[![Test execution-Debug via serial port-Data persistence](images/esp32-ensayo.png)](https://youtu.be/BXJvdTQ8DYk)
 
