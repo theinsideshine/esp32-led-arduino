@@ -104,5 +104,9 @@ Date: 07-10-2024
 Problems in embedded firmware design
 [![Problems in embedded firmware design](images/embebidos.png)](https://youtu.be/KhKX23DdfLY)
 
-
 [Presentation](doc/embebidos.pdf)
+
+
+ESP32-Test execution-Debug via serial port-Data persistence
+[![Test execution-Debug via serial port-Data persistence(images/esp32-ensayo.png)](https://youtu.be/BXJvdTQ8DYk)
+
