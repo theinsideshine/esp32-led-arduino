@@ -1,7 +1,7 @@
  # ESP32-WROOM-REV3: Web-Controlled LED Blink Project
 
 ## Project Overview
-This project demonstrates a modular architecture for the ESP32 using Arduino. It supports complex, non-blocking control systems and provides web-based control, data persistence, and serial output in JSON, text, and plotting formats. 
+This project demonstrates a modular architecture for the ESP32-WROOM-REV3 using Arduino. It supports complex, non-blocking control systems and provides web-based control, data persistence, and serial output in JSON, text, and plotting formats. 
 
 ### Key Features:
 - **Non-Blocking Methods**: Supports non-blocking timers for managing LEDs and controlling devices like motorized doors. 
@@ -42,8 +42,8 @@ const char* password = "your-network-password";
 
 
 
-API Endpoints
-1. Retrieve Parameters
+##API Endpoints
+### 1. Retrieve Parameters
 You can retrieve the device’s configured parameters via the GET endpoint:
 
 Endpoint: GET {{urlLocalEsp}}/config
