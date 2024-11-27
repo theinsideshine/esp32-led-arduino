@@ -43,54 +43,59 @@ const char* password = "your-network-password";
 ---
 
 ## API Endpoints
-### 1. Retrieve Parameters
+
+### Retrieve Parameters
 You can retrieve the device’s configured parameters via the GET endpoint:
 
-Endpoint: GET {{urlLocalEsp}}/config
+Endpoint: GET `{{urlLocalEsp}}/config`
 
-Example using cURL: curl --location 'http://192.168.0.53:8080/config'
+Example using cURL:  
+`curl --location 'http://192.168.0.53:8080/config'`
 
-### 2. Modify Parameters and Send Commands
+---
+
+### Modify Parameters and Send Commands
 To modify parameters or send commands, use the PUT endpoint:
 
-Endpoint: PUT {{urlLocalEsp}}/config
+Endpoint: PUT `{{urlLocalEsp}}/config`
 
-Example using cURL:curl --location --request PUT 'http://192.168.0.53:8080/config' \
---header 'Content-Type: application/json' \
---data '{ "log_level": "1" }'
+Example using cURL:  
+`curl --location --request PUT 'http://192.168.0.53:8080/config' --header 'Content-Type: application/json' --data '{ "log_level": "1" }'`
 
-Available Parameters and Commands
-Here are the parameters and commands you can send in JSON format within the request body:
-
-General Information:
-
-{ "info": "all-params" } - Sends all parameters in JSON format.
-Log Level:
-
-{ "log_level": "0" } - Log level 0: Disabled.
-{ "log_level": "1" } - Log level 1: Basic messages.
-{ "log_level": "2" } - Log level 2: Standard control info.
-{ "log_level": "3" } - Log level 3: Arduino plotter compatible format.
-Control Commands:
-
-{ "cmd": "start" } - Starts the test.
-
-Demo json serial output
-{ "st_mode": "200" ,
-"log_level": "2" }
-
-Demo Arduino Plotter serial output
-{ "st_mode": "200" ,
-"log_level": "3" }
-
-Parameter Configuration:
-
-{ "led_blink_time": "1000" } - LED blink time in ms.
-{ "led_blink_quantity": "5" } – Cantidad de veces del parpadeo del LED.
-{ "st_mode": "0" } - Sets the test mode:
-0   - ST_MODE_TEST: Test enabled.
-200 - ST_MODE_DEMO: Demo enabled.
 ---
+
+### Available Parameters and Commands
+General Information:  
+- `{ "info": "all-params" }` - Sends all parameters in JSON format.
+
+Log Level:  
+- `{ "log_level": "0" }` - Log level 0: Disabled.  
+- `{ "log_level": "1" }` - Log level 1: Basic messages.  
+- `{ "log_level": "2" }` - Log level 2: Standard control info.  
+- `{ "log_level": "3" }` - Log level 3: Arduino plotter compatible format.
+
+Control Commands:  
+- `{ "cmd": "start" }` - Starts the test.
+
+---
+
+### Demo JSON Serial Output
+`{ "st_mode": "200", "log_level": "2" }`
+
+---
+
+### Demo Arduino Plotter Serial Output
+`{ "st_mode": "200", "log_level": "3" }`
+
+---
+
+### Parameter Configuration:
+- `{ "led_blink_time": "1000" }` - LED blink time in ms.  
+- `{ "led_blink_quantity": "5" }` - Number of LED blinks.  
+- `{ "st_mode": "0" }` - Sets the test mode:  
+  - `0` - ST_MODE_TEST: Test enabled.  
+  - `200` - ST_MODE_DEMO: Demo enabled.
+
 
 # Usage
 Compile and Upload: Use Arduino IDE 2.3.3 to compile and upload the code to your ESP32.
