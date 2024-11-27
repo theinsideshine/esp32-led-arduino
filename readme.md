@@ -40,9 +40,9 @@ Replace the placeholders in the code:
 const char* ssid = "your-network-SSID";
 const char* password = "your-network-password";
 
+---
 
-
-##API Endpoints
+## API Endpoints
 ### 1. Retrieve Parameters
 You can retrieve the device’s configured parameters via the GET endpoint:
 
@@ -50,7 +50,7 @@ Endpoint: GET {{urlLocalEsp}}/config
 
 Example using cURL: curl --location 'http://192.168.0.53:8080/config'
 
-2. Modify Parameters and Send Commands
+### 2. Modify Parameters and Send Commands
 To modify parameters or send commands, use the PUT endpoint:
 
 Endpoint: PUT {{urlLocalEsp}}/config
@@ -90,8 +90,9 @@ Parameter Configuration:
 { "st_mode": "0" } - Sets the test mode:
 0   - ST_MODE_TEST: Test enabled.
 200 - ST_MODE_DEMO: Demo enabled.
+---
 
-Usage
+# Usage
 Compile and Upload: Use Arduino IDE 2.3.3 to compile and upload the code to your ESP32.
 Serial Logging: Adjust log levels dynamically through serial commands.
 Author: [educacion.ta@gmail.com]
