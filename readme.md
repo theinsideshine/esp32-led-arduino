@@ -33,14 +33,6 @@ The provided code:
 
 ---
 
-## Configuration
-### Wi-Fi Credentials:
-Replace the placeholders in the code:
-```cpp
-const char* ssid = "your-network-SSID";
-const char* password = "your-network-password";
-
----
 
 API Endpoints
 Retrieve Parameters
