@@ -1,22 +1,20 @@
-/**
- * File:   Class of software timers based on the millis () function.
- *        
+ /**
+ * File: Class of software timers based on the millis () function
+ * from arduino that being based on a cpu timer by irq,
+ * does not block execution.
  *
  * - Compiler:           Arduino IDE 2.3.3
- * - Supported devices:  ESP32 DEV Module
+ * - Supported devices:  ESP32 DEV Module. = Esp32-WROOM-REV3
  *
  * -author               educacion.ta@gmail.com
  *                       
  *                       
-* Date:  07-10-2024
+* Date:  27-11-2024
  *
  *      The inside shine.
  *
   */
-
- 
-  
-#include "timer.h"
+ #include "timer.h"
 
 CTimer::CTimer()
 {

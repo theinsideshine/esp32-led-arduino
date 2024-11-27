@@ -1,24 +1,9 @@
-  /**
-   File: Definicion para soporte de precompilacion 
- 
- * - Compiler:           Arduino IDE 2.3.3
- * - Supported devices:  ESP32 DEV Module
- *
- * -author               educacion.ta@gmail.com
- *                       
- *                       
-* Date:  07-10-2024
- *
- *      The inside shine.
- *
-  */
-
 #ifndef PRECOMPILATION_H
 #define PRECOMPILATION_H
 
 #include "Arduino.h"
 
-#define FIRMWARE_VERSION                "led-modular-WEB-V1.18"   //add st_mode_demo1
+#define FIRMWARE_VERSION                "led-modular-esp32-WROOM-V1.18"   //add st_mode_demo1
 #define LED_PRESENT                        1
 //#define ST_DEBUG                         1
 
