@@ -208,69 +208,6 @@ void CConfig::set_st_mode( uint32_t mode )
     EEPROM.put( EEPROM_ADDRESS_ST_MODE, st_mode );
     EEPROM.commit();  // Asegura que el valor se escriba
 }
-/*
-
-API Endpoints
-1. Obtener Parámetros
-Puedes consultar los parámetros configurados en el dispositivo mediante el endpoint GET:
-
-Endpoint: GET {{urlLocalEsp}}/obtenerParametros
-
-curl --location 'http://192.168.0.53/obtenerParametros'
-
-
-2. Modificar Parámetros y Enviar Comandos
-Para modificar parámetros o enviar comandos, utiliza el endpoint PUT:
-
-Endpoint: PUT {{urlLocalEsp}}/parametros
-
-curl --location --request PUT 'http://192.168.0.53/parametros' \
---header 'Content-Type: application/json' \
---data '{ "log_level": "1" }'
-
-Parámetros y Comandos Disponibles
-Estos son los parámetros y comandos que puedes enviar mediante JSON en el cuerpo de la solicitud:
-
-General Information:
-
-{ "info": "all-params" } – Envía todos los parámetros en formato JSON.
-{ "info": "all-calibration" } – Envía todos los parámetros de calibración.
-{ "info": "version" } – Envía la versión del firmware.
-{ "info": "status" } – Devuelve el estado del ensayo.
-{ "info": "led_blink_time" } – Devuelve el tiempo de parpadeo del LED en ms.
-{ "info": "led_blink_quantity" } – Devuelve las veces del parpadeo del LED.
-{ "info": "st_mode" } – Devuelve el modo del ensayo.
-{ "info": "log_level" } – Devuelve el nivel de log por puerto serie.
-Log Level:
-
-{ "log_level": "0" } – Desactiva el log.
-{ "log_level": "1" } – Log básico de mensajes.
-{ "log_level": "2" } – Log habilitado en formato json.              
-{ "log_level": "3" } – Log en formato compatible con Arduino plotter.
-
-Control Commands:
-
-{ "cmd": "start" } – Inicia el ensayo.
-Configuración de Parámetros:
-
-{ "led_blink_time": "1000" } – Tiempo en ms para el parpadeo del LED.
-{ "led_blink_quantity": "5" } – Cantidad de veces del parpadeo del LED.
-{ "st_test": "1" } – Activa el ensayo (0 para desactivado, 1 para activado).
-{ "st_mode": "0" } – Configura el modo del ensayo:
-0 -   ST_MODE_TEST: Ensayo activado.
-200 - ST_MODE_DEMO: Uso del demo
-
-
-Demo para salida Json
-{ "st_mode": "200" ,
-"log_level": "2" }
-
-Demo para salida Arduino Plotter
-{ "st_mode": "200" ,
-"log_level": "3" }
-
-*/
-
 
 void CConfig::send_all_params( JsonDocument& doc )
 {     
